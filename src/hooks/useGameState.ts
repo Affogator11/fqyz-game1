@@ -81,7 +81,7 @@ export const OTHER_ACTIONS = {
     icon: 'Zap',
     description: '压力-- 健康+',
     subject: null,
-    baseEffects: { stress: -12, health: 4, studyState: 2 },
+    baseEffects: { stress: -10, health: 4, studyState: 2 },
   },
   eat: {
     id: 'eat',
