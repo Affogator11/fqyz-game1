@@ -1,5 +1,8 @@
 // 本地事件库 - API失败时的兜底方案
-import type { GameEvent } from '@/types/game';
+import type { GameEvent, SubjectScores } from '@/types/game';
+
+// 弱势科目阈值
+const WEAK_THRESHOLD = 45;
 
 export const LOCAL_EVENTS: GameEvent[] = [
   // ========== 学习类事件 ==========
@@ -186,11 +189,11 @@ export const LOCAL_EVENTS: GameEvent[] = [
   {
     id: 'teacher1_3',
     title: '🏅 严师出高徒',
-    description: '王俊玲单独给你讲了一道压轴题，虽然过程严厉，但你真的学会了，对她的敬意又多了几分。',
+    description: '王俊玲单独给你讲了一道物理压轴题，虽然过程严厉，但你真的学会了，对她的敬意又多了几分。',
     category: 'teacher',
     difficulty: 'moderate',
     isPositive: true,
-    effects: { academicBase: 4, studyState: 10, stress: 5 },
+    effects: { academicBase: 4, studyState: 10, stress: 5, subjects: { physics: 8 } },
     conditions: { teacherId: 1 },
   },
 
@@ -244,7 +247,7 @@ export const LOCAL_EVENTS: GameEvent[] = [
     category: 'teacher',
     difficulty: 'moderate',
     isPositive: true,
-    effects: { academicBase: 6, studyState: 12, stress: 10, health: -5 },
+    effects: { academicBase: 6, studyState: 12, stress: 10, health: -5, subjects: { math: 10 } },
     conditions: { teacherId: 3 },
   },
   {
@@ -256,6 +259,145 @@ export const LOCAL_EVENTS: GameEvent[] = [
     isPositive: true,
     effects: { happy: 25, studyState: 10, stress: -5 },
     conditions: { teacherId: 3 },
+  },
+
+  // ========== 科目相关事件 ==========
+  // 语文事件
+  {
+    id: 'subject_chinese_1',
+    title: '📝 作文获奖',
+    description: '你的作文被选为年级范文，语文老师当众朗读，那种成就感让你对语文更有信心了。',
+    category: 'subject',
+    difficulty: 'moderate',
+    isPositive: true,
+    effects: { happy: 20, studyState: 8, subjects: { chinese: 10 } },
+    relatedSubject: 'chinese',
+  },
+  {
+    id: 'subject_chinese_2',
+    title: '📚 文言文噩梦',
+    description: '《离骚》的背诵检查你一个字也背不出来，语文老师失望的眼神让你无地自容。',
+    category: 'subject',
+    difficulty: 'moderate',
+    isPositive: false,
+    effects: { stress: 15, happy: -10, subjects: { chinese: -8 } },
+    relatedSubject: 'chinese',
+    conditions: { maxSubjectScore: 50 },
+  },
+
+  // 数学事件
+  {
+    id: 'subject_math_1',
+    title: '🔢 数学突破',
+    description: '困扰你很久的圆锥曲线问题终于搞懂了，那种豁然开朗的感觉太棒了！',
+    category: 'subject',
+    difficulty: 'moderate',
+    isPositive: true,
+    effects: { studyState: 10, happy: 15, subjects: { math: 12 } },
+    relatedSubject: 'math',
+  },
+  {
+    id: 'subject_math_2',
+    title: '😰 数学崩溃',
+    description: '函数题完全看不懂，老师讲了三遍你还是一脸懵，感觉自己像个傻子。',
+    category: 'subject',
+    difficulty: 'severe',
+    isPositive: false,
+    effects: { stress: 25, happy: -15, studyState: -10, subjects: { math: -10 } },
+    relatedSubject: 'math',
+    conditions: { maxSubjectScore: 45 },
+  },
+
+  // 英语事件
+  {
+    id: 'subject_english_1',
+    title: '🌍 英语突破',
+    description: '英语听力突然开窍了，以前听不懂的现在能抓住关键词了！',
+    category: 'subject',
+    difficulty: 'moderate',
+    isPositive: true,
+    effects: { happy: 15, studyState: 8, subjects: { english: 10 } },
+    relatedSubject: 'english',
+  },
+  {
+    id: 'subject_english_2',
+    title: '😵 单词遗忘',
+    description: '背了十遍的单词还是想不起来，你开始怀疑自己的记忆力。',
+    category: 'subject',
+    difficulty: 'minor',
+    isPositive: false,
+    effects: { stress: 10, happy: -8, subjects: { english: -6 } },
+    relatedSubject: 'english',
+    conditions: { maxSubjectScore: 50 },
+  },
+
+  // 物理事件
+  {
+    id: 'subject_physics_1',
+    title: '⚡ 物理顿悟',
+    description: '电磁感应的楞次定律突然理解了，那些复杂的题目有了清晰的思路。',
+    category: 'subject',
+    difficulty: 'moderate',
+    isPositive: true,
+    effects: { studyState: 12, happy: 12, subjects: { physics: 10 } },
+    relatedSubject: 'physics',
+  },
+  {
+    id: 'subject_physics_2',
+    title: '🔌 物理困境',
+    description: '电路分析完全摸不着头脑，并联串联傻傻分不清楚。',
+    category: 'subject',
+    difficulty: 'moderate',
+    isPositive: false,
+    effects: { stress: 18, happy: -10, subjects: { physics: -8 } },
+    relatedSubject: 'physics',
+    conditions: { maxSubjectScore: 45 },
+  },
+
+  // 化学事件
+  {
+    id: 'subject_chemistry_1',
+    title: '🧪 化学突破',
+    description: '有机反应的机理终于搞懂了，那些复杂的转化关系有了清晰的脉络。',
+    category: 'subject',
+    difficulty: 'moderate',
+    isPositive: true,
+    effects: { studyState: 10, happy: 10, subjects: { chemistry: 10 } },
+    relatedSubject: 'chemistry',
+  },
+  {
+    id: 'subject_chemistry_2',
+    title: '💨 方程式噩梦',
+    description: '化学方程式配平总是出错，氧化还原反应的电子转移算不清楚。',
+    category: 'subject',
+    difficulty: 'moderate',
+    isPositive: false,
+    effects: { stress: 15, happy: -8, subjects: { chemistry: -8 } },
+    relatedSubject: 'chemistry',
+    conditions: { maxSubjectScore: 50 },
+  },
+
+  // 生物事件
+  {
+    id: 'subject_biology_1',
+    title: '🧬 生物突破',
+    description: '遗传概率的计算终于掌握了，那些复杂的系谱图能看懂了！',
+    category: 'subject',
+    difficulty: 'moderate',
+    isPositive: true,
+    effects: { happy: 12, studyState: 8, subjects: { biology: 10 } },
+    relatedSubject: 'biology',
+  },
+  {
+    id: 'subject_biology_2',
+    title: '🌱 生物困惑',
+    description: '细胞分裂的过程总是搞混，有丝分裂和减数分不清楚。',
+    category: 'subject',
+    difficulty: 'minor',
+    isPositive: false,
+    effects: { stress: 12, happy: -6, subjects: { biology: -6 } },
+    relatedSubject: 'biology',
+    conditions: { maxSubjectScore: 50 },
   },
 
   // ========== 意外事件 ==========
@@ -304,6 +446,27 @@ export const LOCAL_EVENTS: GameEvent[] = [
     isPositive: false,
     effects: { stress: 35, happy: -25, studyState: -10 },
   },
+
+  // ========== 偏科警告事件 ==========
+  {
+    id: 'unbalanced_1',
+    title: '⚠️ 严重偏科警告',
+    description: '数学老师看着你的成绩单直摇头：数学才30分，其他科再高也拉不回来啊！',
+    category: 'subject',
+    difficulty: 'severe',
+    isPositive: false,
+    effects: { stress: 25, happy: -15, subjects: { math: -5 } },
+    conditions: { minSubject: 'math', maxSubjectScore: 35 },
+  },
+  {
+    id: 'unbalanced_2',
+    title: '📊 偏科危机',
+    description: '班主任找你谈话，说你的成绩像过山车，有的科目接近满分，有的却不及格。',
+    category: 'teacher',
+    difficulty: 'moderate',
+    isPositive: false,
+    effects: { stress: 20, happy: -10 },
+  },
 ];
 
 // 根据当前状态筛选合适的事件
@@ -311,7 +474,8 @@ export function filterEventsByState(
   events: GameEvent[],
   teacherId: number,
   week: number,
-  stress: number
+  stress: number,
+  subjects?: SubjectScores
 ): GameEvent[] {
   return events.filter((event) => {
     // 检查班主任条件
@@ -331,6 +495,28 @@ export function filterEventsByState(
     }
     if (event.conditions?.maxStress && stress > event.conditions.maxStress) {
       return false;
+    }
+    // 检查科目条件
+    if (subjects) {
+      // 检查最大科目分数条件
+      if (event.conditions?.maxSubjectScore && event.conditions?.minSubject) {
+        const subjectScore = subjects[event.conditions.minSubject];
+        if (subjectScore > event.conditions.maxSubjectScore) {
+          return false;
+        }
+      }
+      // 检查相关科目是否匹配弱势科目
+      if (event.relatedSubject) {
+        const subjectScore = subjects[event.relatedSubject];
+        // 如果是正面事件，科目分数应该较高
+        if (event.isPositive && subjectScore < WEAK_THRESHOLD) {
+          return false;
+        }
+        // 如果是负面事件，科目分数应该较低
+        if (!event.isPositive && subjectScore > 60) {
+          return false;
+        }
+      }
     }
     return true;
   });

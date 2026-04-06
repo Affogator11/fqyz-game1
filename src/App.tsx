@@ -1,7 +1,8 @@
 import { useState, useCallback } from 'react';
 import { useGameState } from '@/hooks/useGameState';
 import { generateEvent } from '@/services/aiService';
-import type { AIGeneratedEvent, LogEntry } from '@/types/game';
+import type { AIGeneratedEvent, LogEntry, SubjectScores } from '@/types/game';
+import { SUBJECT_CONFIG, SUBJECT_MAX_SCORES } from '@/types/game';
 import { StartScreen } from '@/components/StartScreen';
 import { StatusPanel } from '@/components/StatusPanel';
 import { ActionPanel } from '@/components/ActionPanel';
@@ -19,6 +20,7 @@ function App() {
     calculateScore,
     getRank,
     getTeacher,
+    getSubjectAverage,
     initGame,
     executeAction,
     applyEventEffects,
@@ -52,10 +54,10 @@ function App() {
   // 初始化游戏
   const handleInit = useCallback((teacherId: number) => {
     initGame(teacherId);
-    addLog('站在一中南门，你感受到一股肃穆的气息。战斗正式打响。', 'system');
+    addLog('站在一中南门，你感受到一股肃穆的气息。六科之战，正式打响。', 'system');
   }, [initGame, addLog]);
 
-  // 处理操作
+  // 处理行动
   const handleAction = useCallback(async (actionId: string) => {
     if (isProcessing) return;
     
@@ -75,7 +77,7 @@ function App() {
       }
 
       // 随机触发事件 (48%概率)
-      if (Math.random() < 0.48 && state.ap > 1) {
+      if (Math.random() < 0.48 && state.ap > result.apCost) {
         addLog('<i>⏳ 班主任在走廊里停下了脚步...</i>', 'normal');
         
         const teacher = getTeacher();
@@ -89,7 +91,7 @@ function App() {
             toast.error('事件生成失败，请重试');
           }
         }
-      } else if (state.ap <= 1) {
+      } else if (state.ap <= result.apCost) {
         // 精力耗尽，进入下周
         const result = nextWeek();
         if (result) {
@@ -106,10 +108,25 @@ function App() {
   const handleCloseEvent = useCallback(() => {
     if (currentEvent) {
       applyEventEffects(currentEvent.effects);
-      addLog(
-        `<b>${currentEvent.title}</b>：${currentEvent.description}`,
-        'event'
-      );
+      
+      // 构建日志消息
+      let logMessage = `<b>${currentEvent.title}</b>：${currentEvent.description}`;
+      
+      // 如果有科目变化，显示在日志中
+      if (currentEvent.effects.subjects) {
+        const subjectChanges = Object.entries(currentEvent.effects.subjects)
+          .map(([key, value]) => {
+            const subjectName = SUBJECT_CONFIG[key as keyof SubjectScores].name;
+            const sign = value! > 0 ? '+' : '';
+            return `${subjectName}${sign}${value}`;
+          })
+          .join('、');
+        if (subjectChanges) {
+          logMessage += ` <span class="text-blue-600">[${subjectChanges}]</span>`;
+        }
+      }
+      
+      addLog(logMessage, 'event');
     }
     setShowEventDialog(false);
     setCurrentEvent(null);
@@ -135,7 +152,24 @@ function App() {
   // 关闭考试弹窗
   const handleCloseExam = useCallback(() => {
     setShowExamDialog(false);
-    addLog(`<div class="text-blue-600 font-bold mt-2">--- 第 ${state.week + 1} 周：战斗再续 ---</div>`, 'exam');
+    
+    // 显示科目变化总结
+    const subjectAvg = getSubjectAverage();
+    const weakSubjects = Object.entries(state.subjects)
+      .filter(([key, score]) => {
+        const maxScore = SUBJECT_MAX_SCORES[key as keyof SubjectScores];
+        return (score / maxScore) * 100 < 40; // 掌握度 < 40%
+      })
+      .map(([key, _]) => SUBJECT_CONFIG[key as keyof SubjectScores].name);
+    
+    let summary = `<div class="text-blue-600 font-bold mt-2">--- 第 ${state.week + 1} 周：战斗再续 ---</div>`;
+    summary += `<div class="text-xs text-slate-500 mt-1">六科平均分：${Math.floor(subjectAvg)}分</div>`;
+    
+    if (weakSubjects.length > 0) {
+      summary += `<div class="text-xs text-red-500 mt-1">⚠️ 弱势科目：${weakSubjects.join('、')}</div>`;
+    }
+    
+    addLog(summary, 'exam');
     
     // 检查游戏结束
     const gameOver = checkGameOver();
@@ -143,7 +177,7 @@ function App() {
       setGameOverReason(gameOver.reason);
       setShowGameOver(true);
     }
-  }, [addLog, state.week, checkGameOver]);
+  }, [addLog, state.week, state.subjects, getSubjectAverage]);
 
   // 处理游戏结束
   const handleGameOver = useCallback(() => {
@@ -184,6 +218,7 @@ function App() {
               stress={state.stress}
               health={state.health}
               happy={state.happy}
+              subjects={state.subjects}
               teacher={state.teacher}
               onReset={resetGame}
             />
@@ -194,6 +229,7 @@ function App() {
             {/* 操作按钮 */}
             <ActionPanel
               ap={state.ap}
+              subjects={state.subjects}
               onAction={handleAction}
               disabled={isProcessing}
             />

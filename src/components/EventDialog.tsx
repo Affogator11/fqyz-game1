@@ -7,7 +7,8 @@ import {
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import type { AIGeneratedEvent } from '@/types/game';
-import { Brain, TrendingUp, Activity, Smile, Heart, AlertCircle } from 'lucide-react';
+import { SUBJECT_CONFIG } from '@/types/game';
+import { Brain, TrendingUp, Activity, Smile, Heart, AlertCircle, BookOpen } from 'lucide-react';
 
 interface EventDialogProps {
   isOpen: boolean;
@@ -21,9 +22,11 @@ export function EventDialog({ isOpen, onClose, event }: EventDialogProps) {
   const isPositive = 
     (event.effects.academicBase || 0) > 0 || 
     (event.effects.happy || 0) > 0 || 
-    (event.effects.stress || 0) < 0;
+    (event.effects.stress || 0) < 0 ||
+    (event.effects.subjects && Object.values(event.effects.subjects).some(v => v > 0));
 
-  const effectItems = [
+  // 基础效果项
+  const baseEffectItems = [
     { 
       key: 'studyState', 
       label: '学习手感', 
@@ -60,6 +63,19 @@ export function EventDialog({ isOpen, onClose, event }: EventDialogProps) {
       positive: (v: number) => v > 0,
     },
   ].filter(item => item.value !== undefined && item.value !== 0);
+
+  // 科目效果项
+  const subjectEffectItems = event.effects.subjects 
+    ? Object.entries(event.effects.subjects)
+        .filter(([_, value]) => value !== undefined && value !== 0)
+        .map(([key, value]) => ({
+          key,
+          label: SUBJECT_CONFIG[key as keyof typeof SUBJECT_CONFIG]?.name || key,
+          value: value!,
+          icon: BookOpen,
+          positive: (v: number) => v > 0,
+        }))
+    : [];
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -101,30 +117,66 @@ export function EventDialog({ isOpen, onClose, event }: EventDialogProps) {
             <p className="text-xs text-slate-500 mb-3 uppercase tracking-wider font-bold">
               状态变化
             </p>
-            <div className="flex flex-wrap gap-2">
-              {effectItems.map((item) => {
-                const isGood = item.positive(item.value!);
-                return (
-                  <Badge
-                    key={item.key}
-                    variant="secondary"
-                    className={`
-                      flex items-center gap-1.5 px-3 py-1.5 text-sm font-bold
-                      ${isGood 
-                        ? 'bg-green-100 text-green-700 border border-green-200' 
-                        : 'bg-red-100 text-red-700 border border-red-200'
-                      }
-                    `}
-                  >
-                    <item.icon className="w-3.5 h-3.5" />
-                    {item.label}
-                    <span className={isGood ? 'text-green-800' : 'text-red-800'}>
-                      {item.value! > 0 ? '+' : ''}{item.value}
-                    </span>
-                  </Badge>
-                );
-              })}
-            </div>
+            
+            {/* 基础效果 */}
+            {baseEffectItems.length > 0 && (
+              <div className="flex flex-wrap gap-2 mb-3">
+                {baseEffectItems.map((item) => {
+                  const isGood = item.positive(item.value!);
+                  return (
+                    <Badge
+                      key={item.key}
+                      variant="secondary"
+                      className={`
+                        flex items-center gap-1.5 px-3 py-1.5 text-sm font-bold
+                        ${isGood 
+                          ? 'bg-green-100 text-green-700 border border-green-200' 
+                          : 'bg-red-100 text-red-700 border border-red-200'
+                        }
+                      `}
+                    >
+                      <item.icon className="w-3.5 h-3.5" />
+                      {item.label}
+                      <span className={isGood ? 'text-green-800' : 'text-red-800'}>
+                        {item.value! > 0 ? '+' : ''}{item.value}
+                      </span>
+                    </Badge>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* 科目效果 */}
+            {subjectEffectItems.length > 0 && (
+              <>
+                <p className="text-xs text-slate-400 mb-2">科目掌握度</p>
+                <div className="flex flex-wrap gap-2">
+                  {subjectEffectItems.map((item) => {
+                    const isGood = item.positive(item.value!);
+                    return (
+                      <Badge
+                        key={item.key}
+                        variant="secondary"
+                        className={`
+                          flex items-center gap-1.5 px-3 py-1.5 text-sm font-bold
+                          ${isGood 
+                            ? 'bg-blue-100 text-blue-700 border border-blue-200' 
+                            : 'bg-orange-100 text-orange-700 border border-orange-200'
+                          }
+                        `}
+                      >
+                        <BookOpen className="w-3.5 h-3.5" />
+                        {item.label}
+                        <span className={isGood ? 'text-blue-800' : 'text-orange-800'}>
+                          {item.value! > 0 ? '+' : ''}{item.value}
+                        </span>
+                      </Badge>
+                    );
+                  })}
+                </div>
+              </>
+            )}
+
             {event.reason && (
               <p className="text-xs text-slate-500 mt-3 italic">
                 💡 {event.reason}
