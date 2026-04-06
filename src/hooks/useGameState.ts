@@ -21,7 +21,7 @@ export const SUBJECT_ACTIONS = {
     icon: 'BookOpen',
     description: '语文++ 手感+',
     subject: 'chinese' as const,
-    baseEffects: { studyState: 4, academicBase: 0.3, stress: 3 },
+    baseEffects: { studyState: 3, academicBase: 0.3, stress: 3 },
   },
   math: {
     id: 'math',
@@ -29,7 +29,7 @@ export const SUBJECT_ACTIONS = {
     icon: 'Calculator',
     description: '数学++ 手感+',
     subject: 'math' as const,
-    baseEffects: { studyState: 5, academicBase: 0.5, stress: 5 },
+    baseEffects: { studyState: 4, academicBase: 0.5, stress: 5 },
   },
   english: {
     id: 'english',
@@ -37,7 +37,7 @@ export const SUBJECT_ACTIONS = {
     icon: 'Languages',
     description: '英语++ 手感+',
     subject: 'english' as const,
-    baseEffects: { studyState: 4, academicBase: 0.3, stress: 3 },
+    baseEffects: { studyState: 3, academicBase: 0.3, stress: 3 },
   },
   physics: {
     id: 'physics',
@@ -45,7 +45,7 @@ export const SUBJECT_ACTIONS = {
     icon: 'Atom',
     description: '物理++ 手感+',
     subject: 'physics' as const,
-    baseEffects: { studyState: 5, academicBase: 0.4, stress: 4 },
+    baseEffects: { studyState: 4, academicBase: 0.4, stress: 4 },
   },
   chemistry: {
     id: 'chemistry',
@@ -53,7 +53,7 @@ export const SUBJECT_ACTIONS = {
     icon: 'FlaskConical',
     description: '化学++ 手感+',
     subject: 'chemistry' as const,
-    baseEffects: { studyState: 4, academicBase: 0.3, stress: 3 },
+    baseEffects: { studyState: 3, academicBase: 0.3, stress: 3 },
   },
   biology: {
     id: 'biology',
@@ -61,7 +61,7 @@ export const SUBJECT_ACTIONS = {
     icon: 'Dna',
     description: '生物++ 手感+',
     subject: 'biology' as const,
-    baseEffects: { studyState: 3, academicBase: 0.2, stress: 2 },
+    baseEffects: { studyState: 2, academicBase: 0.2, stress: 2 },
   },
 };
 
@@ -73,7 +73,7 @@ export const OTHER_ACTIONS = {
     icon: 'BookCheck',
     description: '手感++ 压力+',
     subject: null,
-    baseEffects: { studyState: 12, academicBase: 0.5, stress: 2, happy: 2 },
+    baseEffects: { studyState: 10, academicBase: 0.5, stress: 2, happy: 2 },
   },
   run: {
     id: 'run',
@@ -81,7 +81,7 @@ export const OTHER_ACTIONS = {
     icon: 'Zap',
     description: '压力-- 健康+',
     subject: null,
-    baseEffects: { stress: -18, health: 12, studyState: 2 },
+    baseEffects: { stress: -12, health: 4, studyState: 2 },
   },
   eat: {
     id: 'eat',
@@ -89,7 +89,7 @@ export const OTHER_ACTIONS = {
     icon: 'Utensils',
     description: '幸福++ 压力-',
     subject: null,
-    baseEffects: { happy: 22, stress: -10, health: 5 },
+    baseEffects: { happy: 10, stress: -6, health: 2 },
   },
   sleep: {
     id: 'sleep',
@@ -97,7 +97,7 @@ export const OTHER_ACTIONS = {
     icon: 'Clock',
     description: '健康++ 手感+',
     subject: null,
-    baseEffects: { health: 18, studyState: 10, stress: -5 },
+    baseEffects: { health: 12, studyState: 6, stress: -6 },
   },
   phone: {
     id: 'phone',
@@ -113,7 +113,7 @@ export const OTHER_ACTIONS = {
     icon: 'MessageCircleHeart',
     description: '幸福+ 手感-',
     subject: null,
-    baseEffects: { happy: 18, studyState: -6, stress: -3 },
+    baseEffects: { happy: 8, studyState: -4, stress: -6 },
   },
 };
 
