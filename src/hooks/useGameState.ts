@@ -197,7 +197,7 @@ export function useGameState() {
         applyChanges(changes);
         return {
           success: true,
-          message: '刺激！在厕所隔间偷偷刷完了最新的贴吧消息，压力瞬间释放。',
+          message: '刺激！在厕所隔间偷偷刷完了最新的短视频，压力瞬间释放。',
           changes,
         };
       }
@@ -217,7 +217,7 @@ export function useGameState() {
     const descriptions: Record<string, string> = {
       study: '你刷完了本周的物理加试卷，复杂的电磁感应题让你的大脑高速运转。',
       think: '纠错本上的红蓝标注，是你对抗高考的防线，每一道错题都是进步的阶梯。',
-      run: '清晨白气中，18班的口号声让你短暂忘记了分数，只感受到奔跑的力量。',
+      run: '清晨白气中，口号声让你短暂忘记了分数，只感受到奔跑的力量。',
       eat: '抢到了一份带肉丝的白菜和热馒头，封丘一中的食堂今天格外温柔。',
       sleep: '课间十分钟深度睡眠，梦里你考上了理想的大学，醒来时嘴角还带着笑。',
       chat: '你和同桌吐槽班主任的黑框眼镜，笑得很开心，暂时忘记了周考的焦虑。',
@@ -276,15 +276,15 @@ export function useGameState() {
     const score = calculateScore();
     
     if (state.stress >= 100) {
-      return { isOver: true, reason: '【精神崩溃】你受不了一中的高压，在走廊上崩溃大哭，被家长接回了家。', finalScore: score };
+      return { isOver: true, reason: '【精神崩溃】你受不了一中的高压，撕碎了所有卷子，退学休读。在高三生的人海里，你不过是微不足道的过客', finalScore: score };
     }
     
     if (state.health <= 0) {
-      return { isOver: true, reason: '【积劳成疾】你住进了封丘五院，医生说你必须休学调养。', finalScore: score };
+      return { isOver: true, reason: '【积劳成疾】你住进了封丘人民医院，“出师未捷身先死，常使英雄泪满襟”。', finalScore: score };
     }
     
     if (state.week > 40) {
-      return { isOver: true, reason: `【高考结束】最终成绩：${score}分。去南街好好吃一顿吧！`, finalScore: score };
+      return { isOver: true, reason: `【高考结束】最终成绩：${score}分。封丘一中的故事结束了，但你的人生才刚刚开始`, finalScore: score };
     }
     
     return { isOver: false, reason: '' };
