@@ -1,0 +1,135 @@
+/* 封丘一中：高三生存法则 - 样式 */
+
+/* 自定义动画 */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes pulse-soft {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+/* 日志条目动画 */
+.log-entry-enter {
+  animation: fadeInUp 0.3s ease-out forwards;
+}
+
+/* 压力警告动画 */
+.stress-warning {
+  animation: pulse-soft 1s infinite;
+}
+
+/* 自定义滚动条 */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* 按钮点击效果 */
+.btn-click-effect {
+  transition: transform 0.1s ease;
+}
+
+.btn-click-effect:active {
+  transform: scale(0.98);
+}
+
+/* 卡片悬停效果 */
+.card-hover {
+  transition: all 0.2s ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* 进度条动画 */
+.progress-bar-animated {
+  transition: width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* 文字渐变 */
+.text-gradient {
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* 玻璃态效果 */
+.glass {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+/* 响应式调整 */
+@media (max-width: 1024px) {
+  .main-container {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .score-display {
+    font-size: 2.5rem;
+  }
+}
+
+/* 禁用文本选择（游戏元素） */
+.no-select {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* 焦点样式 */
+button:focus-visible,
+[role="button"]:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* 打印样式 */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+}
