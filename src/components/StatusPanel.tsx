@@ -1,6 +1,7 @@
-// Progress component not used - using custom progress bars
 import { Badge } from '@/components/ui/badge';
-import { Brain, Heart, Activity, Smile, RotateCcw } from 'lucide-react';
+import { Brain, Heart, Activity, Smile, RotateCcw, BookOpen, Calculator, Languages, Atom, FlaskConical, Dna, TrendingDown } from 'lucide-react';
+import type { SubjectScores } from '@/types/game';
+import { SUBJECT_CONFIG, SUBJECT_RANKS, SUBJECT_MAX_SCORES, WEAK_SUBJECT_PERCENT_THRESHOLD } from '@/types/game';
 
 interface StatusPanelProps {
   score: number;
@@ -9,6 +10,7 @@ interface StatusPanelProps {
   stress: number;
   health: number;
   happy: number;
+  subjects: SubjectScores;
   teacher: string;
   onReset: () => void;
 }
@@ -20,6 +22,7 @@ export function StatusPanel({
   stress,
   health,
   happy,
+  subjects,
   teacher,
   onReset,
 }: StatusPanelProps) {
@@ -59,6 +62,28 @@ export function StatusPanel({
       textColor: 'text-cyan-600',
     },
   ];
+
+  // 科目图标映射
+  const subjectIconMap: Record<keyof SubjectScores, typeof BookOpen> = {
+    chinese: BookOpen,
+    math: Calculator,
+    english: Languages,
+    physics: Atom,
+    chemistry: FlaskConical,
+    biology: Dna,
+  };
+
+  // 计算科目平均分（百分比）
+  const subjectAvgPercent = Object.entries(subjects).reduce((total, [key, score]) => {
+    const maxScore = SUBJECT_MAX_SCORES[key as keyof SubjectScores];
+    return total + (score / maxScore) * 100;
+  }, 0) / 6;
+
+  // 统计弱势科目数量（掌握百分比 < 40%）
+  const weakSubjectCount = Object.entries(subjects).filter(([key, score]) => {
+    const maxScore = SUBJECT_MAX_SCORES[key as keyof SubjectScores];
+    return (score / maxScore) * 100 < WEAK_SUBJECT_PERCENT_THRESHOLD;
+  }).length;
 
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
@@ -111,8 +136,92 @@ export function StatusPanel({
           ))}
         </div>
 
+        {/* 分割线 */}
+        <div className="border-t border-slate-100 my-5" />
+
+        {/* 科目掌握程度 */}
+        <div>
+          <div className="flex items-center justify-between mb-3">
+            <div className="text-sm font-bold text-slate-700 flex items-center gap-2">
+              <BookOpen className="w-4 h-4" />
+              科目掌握程度
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-slate-400">
+                平均: {Math.floor(subjectAvgPercent)}%
+              </span>
+              {weakSubjectCount > 0 && (
+                <Badge variant="destructive" className="text-[10px] px-1.5 py-0">
+                  <TrendingDown className="w-3 h-3 mr-1" />
+                  {weakSubjectCount}科危险
+                </Badge>
+              )}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-2">
+            {(Object.entries(subjects) as [keyof SubjectScores, number][]).map(([key, score]) => {
+              const config = SUBJECT_CONFIG[key];
+              const Icon = subjectIconMap[key];
+              const maxScore = SUBJECT_MAX_SCORES[key];
+              const percent = (score / maxScore) * 100;
+              const rank = SUBJECT_RANKS.find(r => percent >= r.minPercent) || SUBJECT_RANKS[SUBJECT_RANKS.length - 1];
+              const isWeak = percent < WEAK_SUBJECT_PERCENT_THRESHOLD;
+              
+              return (
+                <div 
+                  key={key} 
+                  className={`
+                    p-2.5 rounded-lg border transition-all
+                    ${isWeak 
+                      ? 'border-red-200 bg-red-50' 
+                      : 'border-slate-100 bg-slate-50 hover:border-slate-200'
+                    }
+                  `}
+                >
+                  <div className="flex items-center justify-between mb-1.5">
+                    <div className="flex items-center gap-1.5">
+                      <Icon className={`w-3.5 h-3.5 ${config.color}`} />
+                      <span className="text-xs font-medium text-slate-700">{config.name}</span>
+                    </div>
+                    <span className={`text-[10px] font-bold ${rank.color}`}>
+                      {rank.label}
+                    </span>
+                  </div>
+                  
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1 h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                      <div
+                        className={`h-full rounded-full transition-all duration-500 ${
+                          isWeak ? 'bg-red-500' : 'bg-blue-500'
+                        }`}
+                        style={{ width: `${Math.min(100, Math.max(0, percent))}%` }}
+                      />
+                    </div>
+                    <span className={`text-[10px] font-mono font-bold ${isWeak ? 'text-red-600' : 'text-slate-600'}`}>
+                      {Math.floor(score)}/{maxScore}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* 弱势科目提示 */}
+          {weakSubjectCount > 0 && (
+            <div className="mt-3 p-2 bg-red-50 border border-red-200 rounded-lg">
+              <div className="text-[11px] text-red-600 flex items-start gap-1.5">
+                <TrendingDown className="w-3.5 h-3.5 mt-0.5 shrink-0" />
+                <span>
+                  有{weakSubjectCount}门科目掌握度低于40%，学习这些科目需要消耗2点精力！
+                </span>
+              </div>
+            </div>
+          )}
+        </div>
+
         {/* Reset Button */}
-        <div className="mt-6 pt-4 border-t border-slate-100 text-center">
+        <div className="mt-5 pt-4 border-t border-slate-100 text-center">
           <button
             onClick={onReset}
             className="text-xs text-slate-400 hover:text-red-500 transition-colors flex items-center justify-center gap-1 mx-auto"
